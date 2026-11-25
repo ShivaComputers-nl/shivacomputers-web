@@ -31,8 +31,8 @@
     <script type="application/ld+json"><?= $page->structuredData ?></script>
 <?php endif; ?>
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/assets/shiva-nav/shiva-nav.css?v=1">
-    <link rel="stylesheet" href="/assets/css/site.css?v=3">
+    <link rel="stylesheet" href="/assets/shiva-nav/shiva-nav.css?v=2">
+    <link rel="stylesheet" href="/assets/css/site.css?v=8">
 </head>
 <body>
 <a class="skip-link" href="#main"><?= e($t->text('nav.skip')) ?></a>

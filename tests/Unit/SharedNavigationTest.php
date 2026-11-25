@@ -38,13 +38,17 @@ final class SharedNavigationTest extends TestCase
 
     public function testLinksToTheOwnSiteStayRelativeAndOthersBecomeAbsolute(): void
     {
+        // As rendered by the Assist site: every 2.0.0 link lives on the main site, so all become absolute.
         $links = self::links((new Navigation(self::SITES, 'assist'))->build('nl', 'assist', []));
+        self::assertSame('https://shivacomputers.nl/nl/computer-support/assist', $links['assist-intro']['url']);
+        self::assertSame('https://shivacomputers.nl/nl/software-development', $links['development']['url']);
+        self::assertTrue($links['assist-intro']['external']);
 
-        self::assertSame('/nl', $links['assist']['url']);
-        self::assertSame('https://shivacomputers.nl/nl/services', $links['services']['url']);
-        self::assertSame('https://rescue.shivacomputers.nl/nl', $links['rescue']['url']);
-        self::assertFalse($links['assist']['external']);
-        self::assertTrue($links['services']['external']);
+        // As rendered by the main site: the same links stay relative.
+        $main = self::links((new Navigation(self::SITES, 'main'))->build('nl', null, []));
+        self::assertSame('/nl/computer-support/assist', $main['assist-intro']['url']);
+        self::assertFalse($main['assist-intro']['external']);
+        self::assertSame('https://rescue.shivacomputers.nl/nl', (new Navigation(self::SITES, 'main'))->url('rescue', '', 'nl'));
     }
 
     public function testEveryLinkHasTextInEnglishAndDutch(): void
@@ -72,14 +76,61 @@ final class SharedNavigationTest extends TestCase
         $built = (new Navigation(self::SITES, 'main'))->build('en', 'remote', []);
         $groups = array_column($built['items'], 'active', 'key');
 
-        self::assertTrue($groups['help']);
-        self::assertFalse($groups['software']);
+        self::assertTrue($groups['computer-support']);
+        self::assertFalse($groups['software-development']);
         self::assertTrue(self::links($built)['remote']['current']);
     }
 
     public function testUnknownLanguageFallsBackToEnglish(): void
     {
-        self::assertSame('Computer help', (new Navigation(self::SITES, 'main'))->build('de', null, [])['items'][2]['label']);
+        self::assertSame('Computer Support', (new Navigation(self::SITES, 'main'))->build('de', null, [])['items'][2]['label']);
+    }
+
+    public static function legacyKeys(): array
+    {
+        return [
+            'old services page' => ['services', 'software-development'],
+            'rescue product site' => ['rescue', 'computer-support'],
+            'assist product site' => ['assist', 'computer-support'],
+        ];
+    }
+
+    /** Older menu keys still work: they mark their group, but never mark a link as the current page. */
+    #[DataProvider('legacyKeys')]
+    public function testOlderPageKeysMarkTheirGroupOnly(string $key, string $group): void
+    {
+        foreach (['main', 'rescue', 'assist'] as $site) {
+            $built = (new Navigation(self::SITES, $site))->build('en', $key, []);
+            $groups = array_column($built['items'], 'active', 'key');
+
+            self::assertTrue($groups[$group], $site . ' ' . $key);
+            self::assertNotContains(true, array_column(self::links($built), 'current'), $site . ' ' . $key);
+        }
+    }
+
+    public function testHeaderMarksTheCurrentPageOncePerMenuVariant(): void
+    {
+        $shivaNav = (new Navigation(self::SITES, 'main'))->build('en', 'recovery-intro', []);
+        ob_start();
+        require __DIR__ . '/../../shiva-nav/header.php';
+        $html = (string) ob_get_clean();
+        $mobileStart = (int) strpos($html, '<details class="snav-mobile">');
+
+        self::assertSame(1, substr_count(substr($html, 0, $mobileStart), 'aria-current="page"'), 'desktop');
+        self::assertSame(1, substr_count(substr($html, $mobileStart), 'aria-current="page"'), 'mobile');
+    }
+
+    public function testSiteIdentifiersAndLinkKeysAreStable(): void
+    {
+        self::assertSame(['main', 'rescue', 'assist'], Navigation::SITES);
+        $links = self::links((new Navigation(self::SITES, 'main'))->build('en', null, []));
+
+        self::assertSame(
+            ['home', 'development', 'websites', 'web-applications', 'custom-software', 'automation', 'portfolio',
+                'support', 'assist-intro', 'recovery-intro', 'remote', 'repair-services', 'about', 'contact'],
+            array_keys($links),
+        );
+        self::assertStringNotContainsString('infrastructu', strtolower(json_encode($links, JSON_THROW_ON_ERROR)));
     }
 
     public static function unsafe(): array

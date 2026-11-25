@@ -7,13 +7,14 @@ namespace ShivaNav;
 /**
  * Turns menu.php into ready-to-render data for header.php, for one site and one language.
  *
- * Shared, identical copy in all three Shiva Computers sites (source of truth: ShivaComputers_26/shiva-nav/).
+ * Shared copy for the Shiva Computers sites (historical source of truth: ShivaComputers_26/shiva-nav/;
+ * version 2.0.0 is a local candidate in the main site only, see README.md).
  * It has no dependencies on the site around it: each site passes in its own addresses, the current
  * page key and its language links.
  */
 final class Navigation
 {
-    public const VERSION = '1.0.0';
+    public const VERSION = '2.0.0';
     public const SITES = ['main', 'rescue', 'assist'];
     private const FALLBACK_LANGUAGE = 'en';
 
@@ -57,7 +58,9 @@ final class Navigation
                     'label' => $this->text($item['label'], $language),
                     'url' => null,
                     'current' => false,
-                    'active' => in_array(true, array_column($children, 'current'), true),
+                    // Older keys (e.g. 'services', or 'rescue'/'assist' sent by product sites) mark the group, never a link.
+                    'active' => in_array(true, array_column($children, 'current'), true)
+                        || ($currentKey !== null && in_array($currentKey, $item['legacy'] ?? [], true)),
                     'children' => $children,
                 ];
             } else {

@@ -380,3 +380,87 @@ a:hover { color: var(--blue-dark); }
 .product-link { margin-top: auto; padding-top: 0.75rem; color: var(--accent, var(--blue)); font-weight: 700; }
 .product-card:hover .product-link { text-decoration: underline; text-underline-offset: 0.15em; }
 @media (prefers-reduced-motion: reduce) { .product-card { transition: none; } .product-card:hover { transform: none; } }
+
+/* Division pages (SC-MASTER-001): blue development, green support */
+:root {
+    --development: #1d4ed8;
+    --development-tint: #eff5ff;
+    --support: #167d49;
+    --support-dark: #10603a;
+    --support-tint: #edf7f0;
+}
+.page-heading--development { background: var(--development-tint); border-top: 4px solid var(--development); }
+.page-heading--support { background: var(--support-tint); border-top: 4px solid var(--support); }
+.division-label { margin-bottom: 0.75rem; font-weight: 700; }
+.page-heading--development .division-label, .page-heading--development .division-label a { color: var(--development); }
+.page-heading--support .division-label, .page-heading--support .division-label a { color: var(--support-dark); }
+.division-label a { display: inline-flex; align-items: center; min-height: 44px; }
+.status-line { margin-top: 1rem; font-weight: 600; }
+.status-tag { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--white); border: 1px solid currentColor; color: var(--support-dark); font-size: 0.9rem; font-weight: 700; }
+.more-link { margin-top: 1.5rem; }
+.service-list__title { flex: 1 1 17rem; font-size: 1.3rem; }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr)); gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+.info-grid > li { display: flex; }
+.info-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--accent);
+    border-radius: 6px;
+    color: var(--navy);
+    text-decoration: none;
+}
+.info-card:hover { color: var(--navy); border-color: var(--accent); }
+.info-card:focus-visible { outline-offset: 4px; }
+.info-card p { color: var(--muted); }
+.info-card--development { --accent: var(--development); }
+.info-card--support { --accent: var(--support); }
+.info-link { margin-top: auto; padding-top: 0.5rem; color: var(--accent); font-weight: 700; }
+.info-card--support .info-link { color: var(--support-dark); }
+.info-card:hover .info-link { text-decoration: underline; text-underline-offset: 0.15em; }
+.button--support { background: var(--support); }
+.button--support:hover { background: var(--support-dark); }
+.steps--support li::before { color: var(--support-dark); }
+
+/* Home page (SC-MASTER-001 P02): two equal divisions, then portfolio and support products */
+.hero--neutral { padding: 3.5rem 0; }
+.hero--neutral h1 { font-size: clamp(2rem, 5vw, 3rem); overflow-wrap: break-word; hyphens: auto; }
+.divisions { padding: 3rem 0; }
+.division-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+@media (min-width: 900px) { .division-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.division-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 0;
+    padding: 2rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 6px solid var(--accent);
+    border-radius: 8px;
+}
+.division-card--development { --accent: var(--development); --accent-text: var(--development); --accent-hover: #1e40af; }
+.division-card--support { --accent: var(--support); --accent-text: var(--support-dark); --accent-hover: var(--support-dark); }
+.division-card__label { color: var(--accent-text); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.division-card h2 { font-size: clamp(1.5rem, 3vw, 2rem); overflow-wrap: anywhere; hyphens: auto; }
+.division-card__text { font-size: 1.125rem; }
+.division-card__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--border); }
+.division-card__list li { position: relative; padding: 0.5rem 0 0.5rem 1.5rem; border-bottom: 1px solid var(--border); }
+.division-card__list li::before { content: "\2022"; position: absolute; left: 0.4rem; color: var(--accent-text); font-weight: 800; }
+.division-card__cta { align-self: stretch; justify-content: center; margin-top: auto; padding-inline: 1rem; font-size: 1rem; text-align: center; background: var(--accent); }
+.division-card__cta:hover { background: var(--accent-hover); }
+.secondary-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3rem; padding-top: 1rem; padding-bottom: 4rem; }
+@media (min-width: 900px) { .secondary-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.secondary { min-width: 0; }
+.secondary .section-heading { margin-bottom: 1.5rem; overflow-wrap: break-word; hyphens: auto; }
+.secondary .section-intro { margin-top: -0.75rem; }
+.project-grid--compact { grid-template-columns: minmax(0, 1fr); }
+.product-grid--stacked { grid-template-columns: minmax(0, 1fr); }
+.secondary--support .product-card { --accent: var(--support-dark); }
+.secondary--support .product-icon { background: var(--support-tint); }
+.page-heading h1, .section-heading, .info-card h3 { overflow-wrap: break-word; hyphens: auto; }

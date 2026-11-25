@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use App\Controllers\AboutController;
 use App\Controllers\ContactController;
+use App\Controllers\DevelopmentController;
 use App\Controllers\HomeController;
 use App\Controllers\PortfolioController;
 use App\Controllers\PrivacyController;
 use App\Controllers\RemoteSupportController;
 use App\Controllers\SeoController;
 use App\Controllers\ServiceController;
+use App\Controllers\SupportController;
 use FastRoute\RouteCollector;
 
 return static function (RouteCollector $routes): void {
@@ -33,5 +35,18 @@ return static function (RouteCollector $routes): void {
         $routes->addRoute('POST', '/contact', [ContactController::class, 'submit']);
         $routes->addRoute('GET', '/privacy', [PrivacyController::class, 'index']);
         $routes->addRoute('GET', '/remote-support', [RemoteSupportController::class, 'index']);
+
+        // Software Design & Development division: fixed paths, one handler each.
+        $routes->addRoute('GET', '/software-development', [DevelopmentController::class, 'index']);
+        $routes->addRoute('GET', '/software-development/websites', [DevelopmentController::class, 'websites']);
+        $routes->addRoute('GET', '/software-development/web-applications', [DevelopmentController::class, 'webApplications']);
+        $routes->addRoute('GET', '/software-development/custom-software', [DevelopmentController::class, 'customSoftware']);
+        $routes->addRoute('GET', '/software-development/automation', [DevelopmentController::class, 'automation']);
+
+        // Computer Repair & Support division.
+        $routes->addRoute('GET', '/computer-support', [SupportController::class, 'index']);
+        $routes->addRoute('GET', '/computer-support/assist', [SupportController::class, 'assist']);
+        $routes->addRoute('GET', '/computer-support/recovery', [SupportController::class, 'recovery']);
+        $routes->addRoute('GET', '/computer-support/repair-services', [SupportController::class, 'repairServices']);
     });
 };

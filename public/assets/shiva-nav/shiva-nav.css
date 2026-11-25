@@ -1,5 +1,5 @@
-/* Shared Shiva Computers top bar (shiva-nav 1.0.0).
-   Identical in all three sites; source of truth: ShivaComputers_26/public/assets/shiva-nav/.
+/* Shared Shiva Computers top bar (shiva-nav 2.0.0).
+   Historical source of truth: ShivaComputers_26/public/assets/shiva-nav/; 2.0.0 is a local candidate in the main site only.
    Every class starts with "snav" and all colours are local, so it never clashes with a site's own styles. */
 
 .snav {
@@ -63,6 +63,8 @@
 .snav-panel {
     position: absolute;
     left: 0;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
     top: calc(100% + 0.4rem);
     width: 300px;
     padding: 0.4rem;
@@ -118,9 +120,15 @@
 .snav-mobile-group ul a { padding-left: 0.75rem; }
 .snav .snav-mobile-lang { color: var(--snav-blue); border-bottom: 0; }
 
-@media (max-width: 899px) {
+@media (max-width: 1099px) {
     .snav-main, .snav-inner > .snav-lang, .snav-langs { display: none; }
     .snav-mobile { display: block; }
 }
 @media (prefers-reduced-motion: reduce) { .snav-dropdown > summary::after { transition: none; } }
 @media print { .snav { display: none; } }
+/* Very narrow screens: keep brand and menu button inside 320 CSS px */
+@media (max-width: 359px) {
+    .snav-inner { gap: 0.5rem; width: calc(100% - 1rem); }
+    .snav-brand { font-size: 1rem; gap: 0.4rem; }
+    .snav-mobile > summary { padding: 0 0.6rem; }
+}

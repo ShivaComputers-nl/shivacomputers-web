@@ -16,6 +16,7 @@
     <div class="wrap">
         <h2 class="section-heading"><?= e($t->text('services.heading')) ?></h2>
         <?= $this->partial('Partials/offering-list', ['offerings' => $offerings]) ?>
+        <p class="more-link"><a class="text-link" href="<?= e($page->url('/software-development')) ?>"><?= e($t->text('services.development_link')) ?></a></p>
     </div>
 </section>
 

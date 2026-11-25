@@ -59,8 +59,8 @@ final class ProductsTest extends TestCase
     public static function languages(): array
     {
         return [
-            'English' => ['en', 'Remote help', 'What Shiva Computers offers'],
-            'Dutch' => ['nl', 'Hulp op afstand', 'Wat Shiva Computers biedt'],
+            'English' => ['en', 'Shiva Remote', 'What Shiva Computers offers'],
+            'Dutch' => ['nl', 'Shiva Remote', 'Wat Shiva Computers biedt'],
         ];
     }
 
@@ -70,41 +70,52 @@ final class ProductsTest extends TestCase
         $menu = self::navigation($this->get('/' . $language)->body);
 
         self::assertSame(5, substr_count($menu, '<li><a class="snav-link') + substr_count($menu, '<li class="snav-group">'));
+        // Shared menu 2.0.0 (P04): two equal groups, every link local; no infrastructure item.
         self::assertInOrder([
             'href="/' . $language . '"',
-            '<summary class="snav-link">Software &amp; websites</summary>',
-            'href="/' . $language . '/services"',
+            '<summary class="snav-link">' . ($language === 'nl' ? 'Softwareontwikkeling' : 'Software Development') . '</summary>',
+            'href="/' . $language . '/software-development"',
+            'href="/' . $language . '/software-development/websites"',
+            'href="/' . $language . '/software-development/web-applications"',
+            'href="/' . $language . '/software-development/custom-software"',
+            'href="/' . $language . '/software-development/automation"',
             'href="/' . $language . '/portfolio"',
-            '<summary class="snav-link">' . ($language === 'nl' ? 'Computerhulp' : 'Computer help') . '</summary>',
-            'href="https://rescue.shivacomputers.nl/' . $language . '"',
-            'href="https://assist.shivacomputers.nl/' . $language . '"',
+            '<summary class="snav-link">' . ($language === 'nl' ? 'Computerondersteuning' : 'Computer Support') . '</summary>',
+            'href="/' . $language . '/computer-support"',
+            'href="/' . $language . '/computer-support/assist"',
+            'href="/' . $language . '/computer-support/recovery"',
             'href="/' . $language . '/remote-support"><strong>' . $remoteLabel,
+            'href="/' . $language . '/computer-support/repair-services"',
             'href="/' . $language . '/about"',
             'href="/' . $language . '/contact"',
         ], $menu);
+        self::assertSame(11, substr_count($menu, '<li><a href='), 'Six development and five support links in the groups');
+        self::assertStringNotContainsString('https://', $menu);
+        self::assertStringNotContainsStringIgnoringCase('infrastructu', $menu);
     }
 
     #[DataProvider('languages')]
-    public function testHomePageShowsFourProductCardsInOrder(string $language, string $remoteLabel, string $heading): void
+    public function testHomePageGroupsTheThreeSupportProductsInOrder(string $language): void
     {
+        // Replaces the four-card assertion (P02): software is now a primary division; the three support
+        // products link to their local introduction pages, which hold the configured external origins.
         $body = $this->get('/' . $language)->body;
-        $section = substr($body, (int) strpos($body, 'class="section products"'));
+        $section = substr($body, (int) strpos($body, 'class="secondary secondary--support products"'));
 
-        self::assertStringContainsString($heading, $section);
-        self::assertSame(4, substr_count($section, 'class="product-card '));
+        self::assertStringContainsString($language === 'nl' ? 'Ondersteuningsproducten' : 'Support products', $section);
+        self::assertSame(3, substr_count($section, 'class="product-card '));
         self::assertInOrder([
-            'class="product-card product-card--software" href="/' . $language . '/services"',
-            'class="product-card product-card--rescue" href="https://rescue.shivacomputers.nl/' . $language . '"',
-            'class="product-card product-card--assist" href="https://assist.shivacomputers.nl/' . $language . '"',
+            'class="product-card product-card--assist" href="/' . $language . '/computer-support/assist"',
+            'class="product-card product-card--rescue" href="/' . $language . '/computer-support/recovery"',
             'class="product-card product-card--remote" href="/' . $language . '/remote-support"',
         ], $section);
     }
 
-    public function testCardsAppearBeforeTheServiceDetails(): void
+    public function testDivisionsAppearBeforeTheSecondarySections(): void
     {
         $body = $this->get('/en')->body;
 
-        self::assertInOrder(['class="hero"', 'class="section products"', 'What I can build for you'], $body);
+        self::assertInOrder(['class="hero', 'class="section divisions"', 'id="home-projects"', 'id="home-products"'], $body);
     }
 
     public function testDevelopmentStatusIsShownHonestly(): void
@@ -118,9 +129,14 @@ final class ProductsTest extends TestCase
     {
         return [
             'home' => ['/en', 'class="snav-link is-active" href="/en" aria-current="page">Home</a>'],
-            'services' => ['/en/services', 'href="/en/services" aria-current="page"><strong>Services'],
-            'remote support' => ['/nl/remote-support', 'href="/nl/remote-support" aria-current="page"><strong>Hulp op afstand'],
-            'about' => ['/nl/about', 'href="/nl/about" aria-current="page">Over</a>'],
+            'development overview' => ['/en/software-development', 'href="/en/software-development" aria-current="page"><strong>Overview'],
+            'websites' => ['/nl/software-development/websites', 'href="/nl/software-development/websites" aria-current="page"><strong>Websites'],
+            'support overview' => ['/nl/computer-support', 'href="/nl/computer-support" aria-current="page"><strong>Overzicht'],
+            'assist introduction' => ['/en/computer-support/assist', 'href="/en/computer-support/assist" aria-current="page"><strong>Shiva Assist'],
+            'recovery introduction' => ['/en/computer-support/recovery', 'href="/en/computer-support/recovery" aria-current="page"><strong>Shiva Recovery'],
+            'repair services' => ['/en/computer-support/repair-services', 'href="/en/computer-support/repair-services" aria-current="page"><strong>Repair services'],
+            'remote support' => ['/nl/remote-support', 'href="/nl/remote-support" aria-current="page"><strong>Shiva Remote'],
+            'about' => ['/nl/about', 'href="/nl/about" aria-current="page">Over ons</a>'],
         ];
     }
 
@@ -134,8 +150,28 @@ final class ProductsTest extends TestCase
     {
         $menu = self::navigation($this->get('/en/portfolio')->body);
 
-        self::assertStringContainsString('<summary class="snav-link is-active">Software &amp; websites</summary>', $menu);
-        self::assertStringContainsString('<summary class="snav-link">Computer help</summary>', $menu);
+        self::assertStringContainsString('<summary class="snav-link is-active">Software Development</summary>', $menu);
+        self::assertStringContainsString('<summary class="snav-link">Computer Support</summary>', $menu);
+
+        $support = self::navigation($this->get('/en/remote-support')->body);
+        self::assertStringContainsString('<summary class="snav-link is-active">Computer Support</summary>', $support);
+        self::assertStringContainsString('<summary class="snav-link">Software Development</summary>', $support);
+    }
+
+    public function testLegacyServicesPageMarksItsGroupWithoutClaimingANewPage(): void
+    {
+        // Compatibility option A: /services stays 200; it highlights its group but no link is "current".
+        $menu = self::navigation($this->get('/en/services')->body);
+
+        self::assertStringContainsString('<summary class="snav-link is-active">Software Development</summary>', $menu);
+        self::assertStringNotContainsString('aria-current', $menu);
+    }
+
+    public function testEveryPageMarksAtMostOneLinkAsCurrent(): void
+    {
+        foreach (['/en', '/en/software-development/automation', '/nl/computer-support/recovery', '/nl/contact', '/en/privacy'] as $path) {
+            self::assertLessThanOrEqual(1, substr_count(self::navigation($this->get($path)->body), 'aria-current="page"'), $path);
+        }
     }
 
     public function testLogoLinksToTheHomePage(): void
@@ -169,10 +205,11 @@ final class ProductsTest extends TestCase
 
     public function testProductSiteAddressesCanBeConfigured(): void
     {
-        $body = $this->get('/en', ['product_sites' => ['rescue' => 'https://r.example.nl', 'assist' => 'https://a.example.nl/']]);
+        // The configured product origins now appear on the local introduction pages (P04).
+        $sites = ['product_sites' => ['rescue' => 'https://r.example.nl', 'assist' => 'https://a.example.nl/']];
 
-        self::assertStringContainsString('href="https://r.example.nl/en"', $body->body);
-        self::assertStringContainsString('href="https://a.example.nl/en"', $body->body);
+        self::assertStringContainsString('href="https://r.example.nl/en"', $this->get('/en/computer-support/recovery', $sites)->body);
+        self::assertStringContainsString('href="https://a.example.nl/en"', $this->get('/en/computer-support/assist', $sites)->body);
     }
 
     public static function unsafeSiteUrls(): array
