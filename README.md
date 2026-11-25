@@ -1,10 +1,10 @@
 # Shiva Computers Website
 
-A bilingual PHP 8.2+ website for ShivaComputers.nl, built with layered MVC, Composer, FastRoute and file-backed repositories. **SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
+A bilingual PHP 8.2+ website for ShivaComputers.nl, built with layered MVC, Composer, FastRoute and file-backed repositories. **Checkpoint SC-WEB-R02 (25 November 2026).** SC-MASTER-001 P01–P05 is implemented and integrated in `develop` (PR #12, merge commit `4745e8041def8bb130c642e94b6704d5d1472fd1`). The redesign is **not deployed**: `main` (`9e18f6ac194a3e43205b2c243c821d5430cdfba0`) and production are unchanged. Text marked *baseline* describes `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` before the redesign and is kept as history; the implemented state and its evidence are in [`docs/WEBSITE_ACCEPTANCE.md`](docs/WEBSITE_ACCEPTANCE.md).
 
 ## Business direction
 
-Approved target: two equal divisions, Software Design & Development (blue) and Computer Repair & Support (green). Support includes Shiva Assist, Shiva Recovery (including existing Shiva Rescue OS) and Shiva Remote. Private Shiva Infrastructure is not public. Separate product release gates. The existing site still uses four homepage product cards and a grouped menu; the redesign is not implemented by P01.
+Approved target: two equal divisions, Software Design & Development (blue) and Computer Repair & Support (green). Support includes Shiva Assist, Shiva Recovery (including existing Shiva Rescue OS) and Shiva Remote. Private Shiva Infrastructure is not public. Separate product release gates. This redesign is implemented in `develop` (see below) but not yet live.
 
 ## Documentation index
 
@@ -15,6 +15,7 @@ Approved target: two equal divisions, Software Design & Development (blue) and C
 - [Shared navigation](shiva-nav/README.md)
 - [Agent rules](AGENTS.md)
 - [Continuation checkpoint](HANDOFF.md)
+- [Acceptance record](docs/WEBSITE_ACCEPTANCE.md)
 
 ## Start locally (existing instructions; separate execution authorization required)
 
@@ -46,11 +47,24 @@ Without Docker, run `composer install` (committed lock only) and `vendor/bin/php
 
 `POST /{language}/contact` uses ContactController and ContactFormService. The form is implemented in source; production delivery is unverified. Spam protection: hidden trap, signed token rejecting submissions within 3 seconds or after 2 hours, at most five messages per visitor/hour; IPs stored as keyed hashes. Production default `MAIL_TRANSPORT=mail` uses PHP mail() on STRATO with configured sender `website@shivacomputers.nl` and visitor Reply-To; development `file` writes to storage/unsent/. Mail failure falls back to file storage (not a guarantee of delivery or persistence if storage fails). `storage/` sits outside public/, holds app.key, rate limits and unsent messages; deployment must preserve it. Do not disclose key contents or customer messages.
 
-## Current routes, products and menu
+## Implemented pages, products and menu
 
-Routes defined in `config/routes.php`. Current `/` → `/en`; `/en`, `/nl`; `/<lang>/services`, `/portfolio`, `/about`, `/contact` (GET+POST), `/privacy`, `/remote-support`; `/help`, `/hulp`; `/robots.txt`, `/sitemap.xml`. SEO uses canonical, hreflang and homepage organization JSON-LD; see [sitemap](docs/WEBSITE_SITEMAP.md).
+Implemented in `develop` (SC-MASTER-001, PR #12):
 
-| Current card | Link |
+- Two equal business divisions on the home page: Software Design & Development (blue) and Computer Repair & Support (green), followed by selected projects and the three support products.
+- Nine new logical pages in both languages: `/software-development` (+ `/websites`, `/web-applications`, `/custom-software`, `/automation`) and `/computer-support` (+ `/assist`, `/recovery`, `/repair-services`).
+- 16 logical pages per language, 32 canonical sitemap URLs under compatibility option A: `/services` stays HTTP 200 and indexed; its 301 to `/software-development` is deferred (option B, separate grant with a `deploy.yml` smoke-check change).
+- Shared navigation 2.0.0 (`shiva-nav/`): Home | Software Development | Computer Support | About | Contact | language; desktop menu from 1100px. The rescue and assist sites keep their 1.0.0 copies, which still resolve.
+- Product statuses: Shiva Assist and Shiva Recovery (incl. Rescue OS) *In development*; Shiva Remote and repair services *On request*. Product origins are linked only from the local introduction pages and remain validated by `ProductLinks`.
+- Unchanged: contact form and its protections, remote support page and `/help` `/hulp` shortcuts, security headers, configuration, framework, dependencies and deployment workflows.
+
+Development overrides for product origins: `RESCUE_SITE_URL=http://localhost:8082`, `ASSIST_SITE_URL=http://localhost:8083`; production accepts only HTTPS origins without path. Increment the `site.css` / `shiva-nav.css` query version in `src/Views/Layouts/main.php` when styles change.
+
+### Baseline routes, products and menu (before SC-MASTER-001, history)
+
+Routes defined in `config/routes.php`. Baseline `/` → `/en`; `/en`, `/nl`; `/<lang>/services`, `/portfolio`, `/about`, `/contact` (GET+POST), `/privacy`, `/remote-support`; `/help`, `/hulp`; `/robots.txt`, `/sitemap.xml`. SEO uses canonical, hreflang and homepage organization JSON-LD; see [sitemap](docs/WEBSITE_SITEMAP.md).
+
+| Baseline card | Link |
 |---|---|
 | Software & websites | `/<lang>/services` |
 | Shiva Rescue OS | `https://rescue.shivacomputers.nl/<lang>` |

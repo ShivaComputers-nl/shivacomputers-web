@@ -1,6 +1,6 @@
 # Shiva Computers — Business Architecture
 
-**SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
+**Checkpoint SC-WEB-R02 (25 November 2026).** SC-MASTER-001 P01–P05 is implemented and integrated in `develop` (PR #12, merge commit `4745e8041def8bb130c642e94b6704d5d1472fd1`). The redesign is **not deployed**: `main` (`9e18f6ac194a3e43205b2c243c821d5430cdfba0`) and production are unchanged. Text marked *baseline* describes `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` before the redesign and is kept as history; the implemented state and its evidence are in [`docs/WEBSITE_ACCEPTANCE.md`](WEBSITE_ACCEPTANCE.md).
 
 ## Authority and approved decisions
 
@@ -74,4 +74,4 @@ Shared navy #14243A, development blue #1D4ED8, support green #167D49, canvas #F4
 
 ## Status and unresolved governance
 
-Current website source labels Assist and Rescue OS in development and remote help available by appointment; verify all before publication. No guarantees, invented testimonials or unverified outcomes. Full organization inventory, actual live domains, availability, licensing and privacy remain unresolved. Do not create duplicate repositories, rename, transfer, change visibility or expose internal infrastructure. Owner approves consequential changes and releases. [Technical architecture](ARCHITECTURE.md) and [handoff](../HANDOFF.md) define boundaries.
+Website labels (develop, SC-WEB-R02): Shiva Assist and Shiva Recovery/Rescue OS in development; Shiva Remote and repair services on request (baseline said remote help "available by appointment"). Owner approval of public copy is still required before production. No guarantees, invented testimonials or unverified outcomes. Full organization inventory, actual live domains, availability, licensing and privacy remain unresolved. Do not create duplicate repositories, rename, transfer, change visibility or expose internal infrastructure. Owner approves consequential changes and releases. [Technical architecture](ARCHITECTURE.md) and [handoff](../HANDOFF.md) define boundaries.
