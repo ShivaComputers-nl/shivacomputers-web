@@ -1,8 +1,18 @@
 # Shiva Computers — Website Sitemap and Route Contract
 
-**SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
+**Checkpoint SC-WEB-R02 (25 November 2026).** SC-MASTER-001 P01–P05 is implemented and integrated in `develop` (PR #12, merge commit `4745e8041def8bb130c642e94b6704d5d1472fd1`). The redesign is **not deployed**: `main` (`9e18f6ac194a3e43205b2c243c821d5430cdfba0`) and production are unchanged. Text marked *baseline* describes `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` before the redesign and is kept as history; the implemented state and its evidence are in [`docs/WEBSITE_ACCEPTANCE.md`](WEBSITE_ACCEPTANCE.md).
 
-## Current implemented source routes
+## Implemented routes (develop `4745e80`, compatibility option A)
+
+| Suffix under `/en` and `/nl` | Status |
+|---|---|
+| (home), /services, /portfolio, /about, /contact (GET+POST), /privacy, /remote-support | 200, unchanged contracts |
+| /software-development, /software-development/websites, /software-development/web-applications, /software-development/custom-software, /software-development/automation | 200, new |
+| /computer-support, /computer-support/assist, /computer-support/recovery, /computer-support/repair-services | 200, new |
+
+16 logical pages per language, 32 canonical URLs in `/sitemap.xml` (exact set tested in `tests/Feature/SeoTest.php`). `/`, `/help`, `/hulp`, robots, sitemap, trailing-slash 301, 404 and 405 behaviour unchanged. The final 15-per-language (30 URL) target with `/services` → 301 is deferred to option B.
+
+## Baseline source routes (before SC-MASTER-001, history)
 
 | Route | Contract |
 |---|---|

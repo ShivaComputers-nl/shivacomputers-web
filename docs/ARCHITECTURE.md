@@ -1,6 +1,6 @@
 # Shiva Computers — Technical Architecture
 
-**SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
+**Checkpoint SC-WEB-R02 (25 November 2026).** SC-MASTER-001 P01–P05 is implemented and integrated in `develop` (PR #12, merge commit `4745e8041def8bb130c642e94b6704d5d1472fd1`). The redesign is **not deployed**: `main` (`9e18f6ac194a3e43205b2c243c821d5430cdfba0`) and production are unchanged. Text marked *baseline* describes `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` before the redesign and is kept as history; the implemented state and its evidence are in [`docs/WEBSITE_ACCEPTANCE.md`](WEBSITE_ACCEPTANCE.md).
 
 ## Current baseline and MVC layers
 
@@ -40,7 +40,11 @@ Production hazard: deploy.yml runs on push to main and workflow_dispatch, tests 
 
 Shared navigation: see [navigation contract](../shiva-nav/README.md). Page addition guide (future only): typed Page case, explicit FastRoute path, controller and DI registration, escaped view, both translations and metadata, corresponding tests. Preserve existing helpers and fixed mappings; no user-controlled template paths. [Sitemap](WEBSITE_SITEMAP.md) governs URL transitions.
 
-## Exact future candidate scope
+## Package scope (implemented)
+
+The inventory below was executed as SC-MASTER-001 P01 → P03 → P02 → P04(A) → P05 and merged into `develop` by PR #12. Actual scope: 24 baseline files modified and 17 files created (41 of the 46 authorized paths; `ServiceController.php`, `Product.php`, `PageViewModelFactory.php`, `SeoController.php` and `shiva-nav/header.php` were not needed). All 87 program-protected baseline files were verified unchanged. The inventory is kept as the historical authorization record; any further change needs a new scoped grant.
+
+### Original candidate scope (history)
 
 Sequence **P01 → P03 → P02 → P04 → P05**, then separate production gate. Keep original identifiers; P03 route foundation precedes P02 homepage links. M means existing baseline modify-only; C means absent baseline create-only; R means modify a file created by an earlier accepted package. No deletion or rename authorized. Repeated M paths below are intentional candidate permissions. All 46 unique paths belong to original inventory; package-level repeated permissions are proposed, pending authorization. Update relevant existing tests in same package, not only at final gate. Every authorized application implementation package must pass its applicable build and PHPUnit verification gates before acceptance. Documentation-only P01 requires static document, scope and integrity verification instead. No application execution, build, Docker operation, dependency installation or CI execution is permitted under P01. If scope insufficient, stop rather than disable assertions or create unlisted paths.
 
