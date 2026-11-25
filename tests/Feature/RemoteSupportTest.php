@@ -77,7 +77,8 @@ final class RemoteSupportTest extends TestCase
         $body = $this->get($this->application(null), '/nl')->body;
         $navigation = substr($body, strpos($body, '<nav'), strpos($body, '</nav>') - strpos($body, '<nav'));
 
-        self::assertStringContainsString('href="/nl/remote-support"><strong>Hulp op afstand', $navigation);
+        self::assertStringContainsString('<summary class="snav-link">Computerondersteuning</summary>', $navigation);
+        self::assertStringContainsString('href="/nl/remote-support"><strong>Shiva Remote', $navigation);
         self::assertStringContainsString('href="/nl/remote-support"', substr($body, strpos($body, '<footer')));
     }
 

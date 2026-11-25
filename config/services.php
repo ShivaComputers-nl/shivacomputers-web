@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use App\Controllers\AboutController;
 use App\Controllers\ContactController;
+use App\Controllers\DevelopmentController;
 use App\Controllers\ErrorController;
 use App\Controllers\HomeController;
 use App\Controllers\PortfolioController;
 use App\Controllers\PrivacyController;
 use App\Controllers\RemoteSupportController;
 use App\Controllers\SeoController;
+use App\Controllers\SupportController;
 use App\Framework\FormToken;
 use App\Framework\Storage;
 use App\Services\ContactFormService;
@@ -99,6 +101,8 @@ return static function (Container $c, array $config, string $root): void {
 
     $c->set(HomeController::class, fn (Container $c) => new HomeController(...[...$presentation($c), $c->get(IOfferingService::class), $c->get(IProjectService::class), $c->get(ProductLinks::class)]));
     $c->set(ServiceController::class, fn (Container $c) => new ServiceController(...[...$presentation($c), $c->get(IOfferingService::class)]));
+    $c->set(DevelopmentController::class, fn (Container $c) => new DevelopmentController(...[...$presentation($c), $c->get(IProjectService::class)]));
+    $c->set(SupportController::class, fn (Container $c) => new SupportController(...[...$presentation($c), $c->get(ProductLinks::class)]));
     $c->set(PortfolioController::class, fn (Container $c) => new PortfolioController(...[...$presentation($c), $c->get(IProjectService::class)]));
     $c->set(AboutController::class, fn (Container $c) => new AboutController(...$presentation($c)));
     $c->set(ContactController::class, fn (Container $c) => new ContactController(...[...$presentation($c), $c->get(IContactFormService::class)]));

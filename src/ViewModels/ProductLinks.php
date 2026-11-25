@@ -44,6 +44,22 @@ final class ProductLinks
             : rtrim($this->siteUrls[$product->value], '/') . '/' . $language->value;
     }
 
+    /**
+     * The local introduction page of a product on this website (fixed route, never an external address).
+     * Separate from url(), which keeps pointing to where the product itself lives.
+     */
+    public function introductionUrl(Product $product, Language $language): string
+    {
+        $page = match ($product) {
+            Product::Software => Page::Development,
+            Product::Rescue => Page::Recovery,
+            Product::Assist => Page::Assist,
+            Product::RemoteSupport => Page::RemoteSupport,
+        };
+
+        return $page->path($language);
+    }
+
     /** @return list<ProductCard> */
     public function cards(Language $language): array
     {

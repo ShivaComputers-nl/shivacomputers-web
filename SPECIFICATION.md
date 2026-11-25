@@ -1,68 +1,129 @@
-# Shiva Computers — Website Specification (Phase 1)
+# Shiva Computers — Website Specification
 
-**Date:** 2026-11-03  
-**Status:** Initial implementation foundation, not production-ready  
-**Domain:** shivacomputers.nl  
-**Host:** STRATO (existing Web Power Advance plan; verify package-level permissions)
+SC-ARCH-001 revision 1.1 / SC-WEB-P01 candidate. **SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
 
-## 1. Business positioning
+## Authority and business decisions
 
-Primary: software development, bespoke business applications, responsive web applications, professional websites and digital solutions. Secondary: registered computer maintenance/IT support; not foregrounded in the initial website. No fabricated client testimonials or project outcomes.
+| ID | Decision |
+|---|---|
+| SC-D01 | Two equal business divisions, equal public prominence, not necessarily equal revenue or staffing. |
+| SC-D02 | Independent product repositories, no product branches as substitute for separate codebases. |
+| SC-D03 | Private internal infrastructure; no public page, marketing card or sitemap entry. |
+| SC-D04 | Shared corporate identity, blue for development and green for support. |
+| SC-D05 | English and Dutch public website. |
+| SC-D06 | Product-specific subdomains when separately release-approved. |
+| SC-D07 | Independent deployment, testing, versions and release lifecycle. |
+| SC-D08 | Retain native PHP MVC website architecture. |
+| SC-R01 | Stable English route slugs beneath /en and /nl; translated visible content. |
+| SC-R02 | Shiva Recovery is a product family containing Shiva Rescue OS; preserve existing product identity and URLs. |
+| SC-R03 | Retain and extend shared shiva-nav. |
+| SC-R04 | Separate owner approval for production integration and deployment. |
 
-## 2. Audiences and conversions
+All are approved. On 25 November 2026 the owner also approved SC-MASTER-001 revision 1.0 and SC-MD01–08 for bounded local execution only (no remote writes, CI, deployment, hosting or DNS). Legal content, product status and release still require separate review.
 
-Businesses, entrepreneurs and prospective software collaborators. Main visitor journeys: see services → inspect projects → contact; inspect GitHub work → contact.
+See [business architecture](docs/BUSINESS_ARCHITECTURE.md) for product and repository hierarchy. The earlier primary/secondary positioning is superseded by equal Software Design & Development and Computer Repair & Support. Audiences: businesses, entrepreneurs, prospective collaborators, individuals and businesses needing computer assistance. Journeys: discover software services → portfolio → contact; discover support → product information → contact or approved operational platform. No public infrastructure advertising.
 
-## 3. Information architecture
+## Current implementation versus approved target
 
-Public routes have language prefixes `/nl` and `/en`: Home, Services, Portfolio, About, Contact, Privacy, Remote support. Navigation and key copy translated in separate PHP dictionaries. Language switch retains the current route.
+PHP 8.2+, Composer/FastRoute, file-based MVC, seven existing logical pages, four homepage cards and separate grouped shared menu. Contact handler with spam protections, portfolio, SEO metadata/sitemap/robots, tests and CI/deployment workflows exist in source. Production delivery, legal content, current CI and live deployment remain unverified. CMS, database, tracking and new shared authentication are excluded. [Sitemap](docs/WEBSITE_SITEMAP.md) defines current, transitional and target route contracts. [Technical architecture](docs/ARCHITECTURE.md) defines exact future candidate scope.
 
-The main menu lists the four products first, in this fixed order, then Portfolio, About and Contact; Home is reached through the logo. The same order appears as cards on the home page, directly below the hero. Both are generated from `App\Enums\Product`, so they cannot disagree:
+## UX, content, visual design and localization
 
-| # | Product | Link |
+Main navigation: Home | Software Development (overview, websites, web apps, custom software, automation, portfolio) | Computer Support (overview, Assist, Recovery, Remote, repair services) | About | Contact | language switch. Both groups equal visual prominence. Footer retains privacy, contact/company details and remote help. No infrastructure page. Shared navigation keeps native details/summary, mobile parity, active group, current page, keyboard and accessible names; no mandatory JS. Parent overview is a real dropdown child link. Use fixed route-to-key mapping and preserve old shared site identifiers main/rescue/assist; no breaking constructor changes to other sites. Version component and cache-bust changed CSS. Main repository proposed canonical shared-navigation source, pending confirmation against earlier documented external source ShivaComputers_26/shiva-nav; do not overwrite other copies or claim migration complete. Coordinate separate product-specific updates later. Old copies must continue resolving existing URLs.
+
+Homepage composition: shared header; neutral corporate hero; two equal-size primary cards, blue and green; desktop two columns, narrow/mobile stacked with equal hierarchy and no hidden division; one main CTA each; selected software portfolio and three support products as secondary sections of comparable prominence; shared trust/contact section and footer. Use real portfolio content and screenshots already in source; verify ownership/claims, no fabricated customers, testimonials or results. Use local SVG/icons/imagery, no new remote dependencies. No download/portal claim until product gate; Assist and Rescue OS current source says in development, Remote says by appointment (verify availability before publishing). Avoid pricing, guarantee or recovery-success claims without approval. Keep direct-owner communication accurate; no implied staffing. Each service detail uses explicit localized copy and a contact CTA. Recovery page introduces family and existing Rescue OS information link; Assist page introduces diagnostics and verification without suggesting guaranteed repair; Remote page remains existing consent/information flow.
+
+Suggested copy EN: “Building software. Solving computer problems.” / “Professional software development and reliable computer support — under one roof.” Development: “Turn your ideas into reliable, secure and user-friendly software.” Support: “Technical support for your computer, from diagnosis and maintenance to recovery and remote assistance.” CTA: Explore Software Development / Explore Computer Support / Contact us.
+
+Suggested copy NL (formal u): “Wij ontwikkelen software. Wij lossen computerproblemen op.” / “Professionele softwareontwikkeling en betrouwbare computerondersteuning — onder één dak.” Development: “Van uw ideeën naar betrouwbare, veilige en gebruiksvriendelijke software.” Support: “Technische ondersteuning voor uw computer, van diagnose en onderhoud tot herstel en hulp op afstand.” CTA: Ontdek onze softwarediensten / Ontdek onze computerondersteuning / Neem contact op. Draft copy, owner content review required.
+
+Use existing translations/en.php and nl.php, PageTranslator and Translator, shared menu bilingual labels. Match key sets and value shapes; all user-facing strings, metadata, status and accessible labels localized. Preserve language switch to same logical page and existing x-default. No silent fallback masking missing keys. Product names consistent across all surfaces.
+
+Design tokens (reference): corporate navy #14243A, development blue #1D4ED8, support green #167D49, canvas #F4F6F9, white #FFFFFF; lighter division backgrounds #EFF5FF/#EDF7F0. Existing system sans typography; consistent spacing, restrained cards, no layout shifts from assets, semantic HTML landmarks, one H1 per page, logical headings, visible focus, accessible contrast target 4.5:1 for normal text; test 320/375/768/1024/1440 CSS px, zoom 200%, EN/NL text wrapping, reduced motion. These are proposed acceptance targets, not measured compliance.
+
+- HOME-01: Shared corporate brand
+- HOME-02: Equal desktop entry cards
+- HOME-03: Equal mobile importance
+- HOME-04: One primary CTA per division
+- HOME-05: Blue development accent
+- HOME-06: Green support accent
+- HOME-07: Preserve portfolio
+- HOME-08: Group support products
+- HOME-09: Honest availability
+- HOME-10: Shared contact information
+- HOME-11: No infrastructure advertising
+- HOME-12: English/Dutch language parity
+
+## Technical and security requirements
+
+Keep PHP >=8.2, Composer/FastRoute, strict types, existing src/ layout, dependency injection and file-backed services. Request → public/index.php → middleware → Router → Controller → Service → Repository → typed model/view model → View → Response. Controllers own HTTP mapping, views render escaped data, repositories own data, no business operations in templates. No new DB/CMS/SPA/auth service or dependencies. Preserve current composer.lock and Docker. Reuse offerings/project repositories and existing icons. Proposed service-detail content uses explicit Page mapping and dictionaries, not a new database. Keep Page::cases/indexability and metadata coherent with new routes. Product enum currently four entries and ProductLinks constructor validates configured external origins. Keep stable enum cases, identifiers and external base validation; introduce presentation-level local introductory URLs without replacing existing configured external URL contract wholesale. New support product landing links should be distinct from operational subdomain links. No dynamic destination from request. If this cannot be done in listed paths, stop and propose scope correction.
+
+Protected: src/Framework (including FormToken, Storage, Router, Application, escaping helpers), middleware, ContactController and all mail/contact/rate-limit services and interfaces, RemoteSupportController, existing remote support view, data/projects.php and portfolio screenshots, privacy view, config/app.php (including mail, storage, product origins and content flags), dependencies, Docker, public entrypoint and .htaccess, .github/workflows, live data/storage, other repos. All unlisted paths excluded. Existing contact POST token, trap/timing, rate limits, mail delivery/fallback, private storage and security headers intact. Preserve configured-origin validation; no open redirects. Do not weaken tests or disclose personal data/secrets. New links use local fixed routes, existing validated product configuration; no new portal configuration. No changes to public download/signing infrastructure.
+
+Production hazard: deploy.yml runs on push to main and workflow_dispatch, tests before SFTP deployment. Non-main pushes/PRs may trigger tests.yml. Therefore even branch push, PR creation or merge can trigger CI; require authorization for each class of action. No remote writes, workflows or deployment during planning. Retain storage exclusion and host-key validation; no operational changes. Prior code reads show config marks content approved; do not treat this as approval for redesign. Local-only candidate testing using isolated storage/file mail after separate approval.
+
+## Future acceptance requirements (not executed)
+
+| ID | Requirement |
+|---|---|
+| SC-AC01 | Exactly two primary homepage divisions |
+| SC-AC02 | Equal visual prominence desktop/mobile |
+| SC-AC03 | Software services and portfolio accessible |
+| SC-AC04 | Assist, Recovery and Remote under support |
+| SC-AC05 | No public infrastructure page/item |
+| SC-AC06 | Every approved EN route correct |
+| SC-AC07 | Every approved NL route correct |
+| SC-AC08 | Language switching retains logical page |
+| SC-AC09 | Existing public routes compatible |
+| SC-AC10 | Existing help shortcuts preserved |
+| SC-AC11 | Remote portal link gated by existing config and release approval |
+| SC-AC12 | Unsafe product URLs rejected |
+| SC-AC13 | Shared menu active group correct |
+| SC-AC14 | Mobile menu link parity |
+| SC-AC15 | No mandatory JS dependency |
+| SC-AC16 | EN/NL keys and value shapes match |
+| SC-AC17 | Canonical and reciprocal hreflang correct |
+| SC-AC18 | Exact indexable canonical sitemap, no redirects/placeholders |
+| SC-AC19 | Invalid routes correct 404 |
+| SC-AC20 | Unsupported methods preserve semantics |
+| SC-AC21 | Contact validation and delivery regressions pass |
+| SC-AC22 | Security headers intact |
+| SC-AC23 | Private storage outside web root |
+| SC-AC24 | Truthful product status |
+| SC-AC25 | No fabricated claims or testimonials |
+| SC-AC26 | Responsive layout and zoom usable |
+| SC-AC27 | Keyboard/focus/accessibility |
+| SC-AC28 | All regression tests pass |
+| SC-AC29 | Bounded path scope respected |
+| SC-AC30 | No unauthorized deploy or history changes |
+
+After explicit test authorization, isolated local Docker or existing PHP 8.2 environment: composer install from lock; `docker compose up --build -d`; `docker compose exec web vendor/bin/phpunit` (existing documented flow). No real mail: isolated storage and file transport, no production secrets. Run syntax lint on changed PHP; all existing PHPUnit tests plus new tests. Test each locale and all canonical routes, root, legacy /services transition, trailing slash, invalid language/path, wrong method, contact token/rate-limit behavior, remote fallback/portal/unsafe URL cases, product URL validation, menu parity/current group, metadata and sitemap exact set. Retain old tests except explicitly replaced obsolete expectations; report replacements. Local browser screenshots of homepage and all key pages at mobile/tablet/desktop sizes in both languages; check keyboard, focus, contrast, zoom and no overflow. Inspect asset paths and CSS cache version. Performance baseline before quantitative claims; no remote tracking/extra JS. No live portal connections, mail, DNS, hosting or CI without separate authorization.
+
+Evidence per package: starting/refreshed HEAD/tree, exact changed paths and mode, protected diff, rationale for repeated files, lint/build and tests counts/pass/fail/skip, sanitized screenshots, route matrix, translation parity, regressions, known limitations and independent disposition. No acceptance from build alone. For documentation package, evidence is document consistency and diff, not runtime pass. Never claim latest CI verified unless exact run/commit verified.
+
+## Sequence and release gates
+
+P01 → P03 → P02 → P04(A) → P05 → separate production approval. One batch local grant (SC-MD04/MD07) covers the sequence; each package needs independent reviewer acceptance before dependent work. P01 only documentation. Compatibility option A (SC-MD03, approved): `/services` stays a canonical 200 page in both languages for this redesign; the 301 to `/software-development` is deferred to a separately authorized option B that must also amend the `/en/services` smoke check in `.github/workflows/deploy.yml` (outside the 46-path scope). Exact candidate scopes in [technical architecture](docs/ARCHITECTURE.md).
+
+| Risk | Severity | Mitigation |
 |---|---|---|
-| 1 | Software & websites | `/{lang}/services` |
-| 2 | Shiva Rescue OS | `https://rescue.shivacomputers.nl/{lang}` |
-| 3 | Shiva Assist | `https://assist.shivacomputers.nl/{lang}` |
-| 4 | Remote help | `/{lang}/remote-support` |
+| Accidental production deployment | Critical | No main push/merge or workflow_dispatch without separate approval |
+| Broken existing URLs | High | Fixed language-aware legacy routes and tests |
+| Cross-site menu inconsistency | High | Version shared component; preserve old keys and coordinate separately |
+| Product naming inconsistency | Medium | Recovery family, preserve Rescue OS |
+| Unapproved availability claims | High | Explicit status and content review |
+| Contact form regression | High | Protected implementation and full tests |
+| Remote security regression | Critical | No session privilege, existing portal gating and consent |
+| Translation gaps | Medium | Key/value parity and locale route tests |
+| SEO regression | High | Exact canonical set and hreflang |
+| Infrastructure exposure | High | Private repo and no public route |
+| Concurrent changes | High | Fresh HEAD, clean worktree, stop on conflict |
+| Scope expansion | Medium | Exact package paths and separate scope approval |
 
-The subdomain addresses come from `product_sites` in `config/app.php` (environment variables `RESCUE_SITE_URL`, `ASSIST_SITE_URL`); only https addresses without a path are accepted. Below 1100 px wide the menu collapses into a `<details>` "Menu" button, which needs no JavaScript.
+Release gate: all packages independently reviewed, content and legal/privacy review, product availability verified, main integration explicitly authorized as production action, hosting backup/rollback and private storage protections independently confirmed, exact deployment workflow and credentials managed outside source, HTTPS and route verification in separately approved environment. Do not trigger live deployment or DNS changes now. No new product release, signing or remote portal activation through website acceptance. If current shared-nav source authority cannot be established, document and defer cross-repo rollout.
 
-Remote support (`/{lang}/remote-support`) is in the main menu (as product 4), on the home page, on the Services page and in the footer. The short links `/hulp` and `/help` go to the support portal when `remote_support_url` is set, otherwise to the information page. The portal is a separate application (`shiva-remote-portal`) and is specified in *Shiva Remote Support — Architecture & Design v3*.
+## Outstanding decisions
 
-## 4. Visual system
+No live domain, STRATO hosting, current CI, legal compliance or other product repository audit established. Shared navigation authority across existing copies unresolved. Product availability, legal copy, licensing, release, actual visual evidence pending. The original 46-path inventory is mechanically verified at the reference tree; revised package repetitions are planning proposals and require execution-baseline verification. No application, GitHub, hosting or DNS changes made. This local Markdown specification is not a published GitHub record.
 
-Professional blue-and-white brand. Colors: navy #10233e, primary blue #1465df, light blue #eff6ff, background #f8fbff. System sans typography. Responsive grid, keyboard focus indicator, contrast-aware buttons, semantic landmarks.
-
-## 5. Core features and acceptance
-
-- **Routing:** clean SEO-friendly URLs with 404 on invalid page/language.
-- **Bilingual:** correct `lang`, canonical and `hreflang` metadata; EN default (`/` and `x-default` point to `/en`), NL as the alternative.
-- **Portfolio:** verified repo names stored in `data/projects.php`; GitHub links; screenshot placeholders only for local development.
-- **Security:** web entry point in `public`; output escaping; no secrets committed; no incomplete contact handler.
-- **Performance:** no external JavaScript, CDN assets, or tracking in Phase 1.
-- **Accessibility:** semantic navigation/headings, mobile layout, keyboard-visible focus. Full accessibility audit pending.
-
-## 5a. Architecture decision
-
-The site uses layered MVC with Composer and FastRoute, replacing the earlier no-Composer rule. No external packages are loaded in the browser. Services and projects stay in PHP files behind repository interfaces, with no database yet. See `docs/ARCHITECTURE.md`.
-
-## 6. Not yet implemented
-
-Project-specific verified summaries, screenshots, business email, production privacy notice, cookie policy if required by later trackers, contact form + anti-spam + delivery, structured data, sitemap, robots, CMS, MySQL persistence, Google analytics, GitHub CI/CD and security testing.
-
-## 7. STRATO hosting prerequisites
-
-Verify PHP >= 8.2, rewrite support, mod_headers (optional), HTTPS, SFTP access, and domain-to-public document-root option on the subscribed plan. If public-directory mapping is restricted, adapt deployment layout rather than exposing application internals. Do not assume a paid plan includes all features on the current marketing page.
-
-## 8. Milestones
-
-1. Foundation and local preview (**this deliverable**)
-2. Detailed content and repository inspection, project screenshots
-3. Contact form with secure server-side validation and email delivery
-4. Technical SEO, tests and accessibility fixes
-5. STRATO staging, SSL, deployment process and go-live checklist
-
-## 9. Proposed production acceptance criteria
-
-All languages/pages load on desktop and mobile; no demo placeholders; published project statements verified; contact details and privacy policy approved; HTTPS enforced; no secret or private file accessible; backups/rollback documented; no broken portfolio links; clean 404 responses; user acceptance completed.
+See [handoff](HANDOFF.md) and [agent rules](AGENTS.md).

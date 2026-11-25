@@ -24,7 +24,10 @@ final class ApplicationTest extends TestCase
     {
         $paths = [];
         foreach (['nl', 'en'] as $language) {
-            foreach (['', '/services', '/portfolio', '/about', '/contact', '/privacy', '/remote-support'] as $page) {
+            foreach (['', '/services', '/portfolio', '/about', '/contact', '/privacy', '/remote-support',
+                '/software-development', '/software-development/websites', '/software-development/web-applications',
+                '/software-development/custom-software', '/software-development/automation',
+                '/computer-support', '/computer-support/assist', '/computer-support/recovery', '/computer-support/repair-services'] as $page) {
                 $paths[$language . $page] = ['/' . $language . $page, $language];
             }
         }
@@ -62,7 +65,9 @@ self::assertStringContainsString('rel="canonical" href="' . $baseUrl . $path . '
 
     public static function invalidPaths(): array
     {
-        return [['/de'], ['/de/'], ['/nl/nope'], ['/nl/services/x'], ['/NL'], ['/\\evil.example/']];
+        return [['/de'], ['/de/'], ['/nl/nope'], ['/nl/services/x'], ['/NL'], ['/\\evil.example/'],
+            ['/de/software-development'], ['/en/software-development/x'], ['/nl/computer-support/rescue'],
+            ['/software-development'], ['/en/computer-support/../about'], ['/en/Software-Development']];
     }
 
     #[DataProvider('invalidPaths')]

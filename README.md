@@ -1,115 +1,91 @@
 # Shiva Computers Website
 
-A bilingual PHP 8.2+ website for ShivaComputers.nl, built with layered MVC, Composer and FastRoute. See `docs/ARCHITECTURE.md` for the design and `SPECIFICATION.md` for scope.
+A bilingual PHP 8.2+ website for ShivaComputers.nl, built with layered MVC, Composer, FastRoute and file-backed repositories. **SC-MASTER-001 local candidate — P01 documentation (25 November 2026).** Written against the baseline source at `develop` `f5eff3cf5fe1d7e5fe50960b99ec5b74b43033e8` and the owner-approved target. "Current" in this document means that baseline; later local packages (P03 → P02 → P04(A) → P05) implement parts of the target and their verified status is recorded in `docs/WEBSITE_ACCEPTANCE.md` (created by P05). Nothing here claims production deployment, current CI or live verification.
 
-## Start locally
+## Business direction
 
-Docker installs the Composer packages inside the image, so PHP is not needed on your computer.
+Approved target: two equal divisions, Software Design & Development (blue) and Computer Repair & Support (green). Support includes Shiva Assist, Shiva Recovery (including existing Shiva Rescue OS) and Shiva Remote. Private Shiva Infrastructure is not public. Separate product release gates. The existing site still uses four homepage product cards and a grouped menu; the redesign is not implemented by P01.
+
+## Documentation index
+
+- [Functional specification](SPECIFICATION.md)
+- [Technical architecture](docs/ARCHITECTURE.md)
+- [Business architecture](docs/BUSINESS_ARCHITECTURE.md)
+- [Website sitemap](docs/WEBSITE_SITEMAP.md)
+- [Shared navigation](shiva-nav/README.md)
+- [Agent rules](AGENTS.md)
+- [Continuation checkpoint](HANDOFF.md)
+
+## Start locally (existing instructions; separate execution authorization required)
+
+Docker installs Composer packages inside the image, so host PHP is not necessary.
 
 ```bash
 docker compose up --build -d
 ```
 
-Open http://localhost:8080/en or http://localhost:8080/nl. Stop with `docker compose down`. Rebuild with `--build` after changing `composer.json`.
+Open http://localhost:8080/en or http://localhost:8080/nl. Stop with `docker compose down`. Rebuild with `--build` after changing composer.json. Port 8080 must be free.
 
-Port 8080 can only be used by one project at a time.
-
-## Create or update composer.lock
-
-Run this once, then commit `composer.lock`. It also creates `vendor/`, which Git ignores.
+### Create or update composer.lock (separate dependency maintenance only)
 
 ```powershell
 docker run --rm -v "${PWD}:/app" composer:2 update --no-interaction --no-scripts --ignore-platform-reqs
 ```
 
-## Run the tests
+This creates vendor/ (ignored). Commit lock changes only under separate authorization. Do not update dependencies as part of P01.
+
+### Tests (future authorized local execution)
 
 ```bash
 docker compose exec web vendor/bin/phpunit
 ```
 
+Without Docker, run `composer install` (committed lock only) and `vendor/bin/phpunit` with a local PHP 8.2+ that has dom, mbstring, simplexml and xmlwriter. Use isolated local storage (`STORAGE_PATH`) and file transport (`MAIL_TRANSPORT=file`); no real mail. P01 itself is documentation only and runs no tests.
+
 ## Contact form
 
-`POST /{language}/contact` is handled by `ContactController` and `ContactFormService`.
+`POST /{language}/contact` uses ContactController and ContactFormService. The form is implemented in source; production delivery is unverified. Spam protection: hidden trap, signed token rejecting submissions within 3 seconds or after 2 hours, at most five messages per visitor/hour; IPs stored as keyed hashes. Production default `MAIL_TRANSPORT=mail` uses PHP mail() on STRATO with configured sender `website@shivacomputers.nl` and visitor Reply-To; development `file` writes to storage/unsent/. Mail failure falls back to file storage (not a guarantee of delivery or persistence if storage fails). `storage/` sits outside public/, holds app.key, rate limits and unsent messages; deployment must preserve it. Do not disclose key contents or customer messages.
 
-- **Spam protection, without cookies or CAPTCHA:** a hidden trap field, a signed form token that rejects forms sent within 3 seconds or after 2 hours, and at most 5 messages per visitor per hour (IP addresses are stored only as a keyed hash).
-- **Sending:** `MAIL_TRANSPORT=mail` (production default) uses PHP `mail()` on STRATO, from `website@shivacomputers.nl` with the visitor as Reply-To. In development (`file`), messages are only saved to `storage/unsent/`. If `mail()` fails, the message is saved there too, so it is never lost.
-- **Storage:** `storage/` sits next to `public/`, outside the web root. Deployments never overwrite or delete it. It holds the generated secret key (`app.key`), the rate limits and unsent messages.
+## Current routes, products and menu
 
-## Routes
+Routes defined in `config/routes.php`. Current `/` → `/en`; `/en`, `/nl`; `/<lang>/services`, `/portfolio`, `/about`, `/contact` (GET+POST), `/privacy`, `/remote-support`; `/help`, `/hulp`; `/robots.txt`, `/sitemap.xml`. SEO uses canonical, hreflang and homepage organization JSON-LD; see [sitemap](docs/WEBSITE_SITEMAP.md).
 
-- `/` redirects to `/en` (English is the default; Dutch is at `/nl`)
-- `/nl`, `/en`
-- `/{language}/services`, `/portfolio`, `/about`, `/contact`, `/privacy`, `/remote-support`
-- `/hulp` and `/help` short links for remote support (see below)
+| Current card | Link |
+|---|---|
+| Software & websites | `/<lang>/services` |
+| Shiva Rescue OS | `https://rescue.shivacomputers.nl/<lang>` |
+| Shiva Assist | `https://assist.shivacomputers.nl/<lang>` |
+| Remote help | `/<lang>/remote-support` |
 
-`/robots.txt` and `/sitemap.xml` are generated by `SeoController`. The sitemap lists every page in both languages with `hreflang` links. The homepage also contains schema.org business data (JSON-LD) and every page has Open Graph tags for link previews.
-
-Routes are defined in `config/routes.php`.
-
-## Products: main menu and home page cards
-
-The main menu shows the four products first, then Portfolio, About and Contact (Home is the logo). The home page shows the same four as cards below the hero. Both come from `src/Enums/Product.php`, so changing the order there changes both.
-
-| # | Product | Link | Text keys |
-|---|---|---|---|
-| 1 | Software & websites | `/{language}/services` | `products.software.*`, `nav.product.software` |
-| 2 | Shiva Rescue OS | `https://rescue.shivacomputers.nl/{language}` | `products.rescue.*`, `nav.product.rescue` |
-| 3 | Shiva Assist | `https://assist.shivacomputers.nl/{language}` | `products.assist.*`, `nav.product.assist` |
-| 4 | Remote help | `/{language}/remote-support` | `products.remote.*`, `nav.product.remote` |
-
-The subdomain addresses are set under `product_sites` in `config/app.php`. Locally, point them at the Docker sites with `RESCUE_SITE_URL=http://localhost:8082` and `ASSIST_SITE_URL=http://localhost:8083` (plain `http://localhost` is accepted only when `APP_ENV` is `development`). Below 1100 px the menu becomes a "Menu" button (`<details>`, no JavaScript).
-
-When `site.css` changes, raise the `?v=` number on the stylesheet link in `src/Views/Layouts/main.php`, so browsers load the new version.
+Product enum and ProductLinks drive cards; shiva-nav/menu.php independently drives grouped Home, Software & websites (Services, Portfolio), Computer help (Rescue, Assist, Remote), About, Contact and language. Shared nav uses details/summary and a separate mobile menu below 900px (`max-width: 899px` in shiva-nav.css). Product origins from `product_sites` in config/app.php. Development overrides: `RESCUE_SITE_URL=http://localhost:8082`, `ASSIST_SITE_URL=http://localhost:8083`; only approved HTTPS origin syntax in production, localhost HTTP in development. Increment site.css query version in Layouts/main.php when styles change. No P01 runtime changes.
 
 ## Remote support
 
-`/{language}/remote-support` explains the remote computer help service. The sessions themselves run in the separate support portal (`shiva-remote-portal`, on the VPS at `remote.shivacomputers.nl`). This website only links to it, so it stays free of cookies, forms and a database.
+`/<lang>/remote-support` explains remote help; sessions are in separate documented shiva-remote-portal, target remote.shivacomputers.nl (existing specification refers to *Shiva Remote Support — Architecture & Design v3*). Main website has a contact form but does not host remote sessions.
 
-| Setting `remote_support_url` in `config/app.php` | Page shows | `/hulp` and `/help` open |
+| Configuration | Information page | /help and /hulp |
 |---|---|---|
-| `null` (default) | A call button with the business phone number | The remote-support page |
-| `'https://remote.shivacomputers.nl'` | An "Enter your code" button | The portal in Dutch or English |
+| remote_support_url null (default) | Call button | EN/NL information page |
+| Approved HTTPS portal origin | Enter your code | EN/NL portal |
 
-Only an `https` address without a path is accepted, so the short links cannot be misused as an open redirect. Set it after the portal has passed its production gate. The environment variable `REMOTE_SUPPORT_URL` overrides the setting, for example `http://localhost:8081` when the portal lab runs next to this site.
+`REMOTE_SUPPORT_URL` overrides the setting; development example http://localhost:8081. Existing validation requires origin only, rejects credentials/path/query/fragment, allows local HTTP only in development; unsafe portal disables link. Shortcuts use 302 and no-store. No automatic remote connection. Portal must pass production gate before configuration; explicit customer consent/control preserved.
 
 ## Before go-live
 
-1. Review all contact details in `config/app.php`, all text, project statements and the privacy notice.
-2. Set `content_approved` to `true`. This removes the preview notice and allows search engines to index the pages.
-3. Keep `APP_ENV` unset on the server, so errors and screenshot placeholders stay hidden.
+Review contact details, project statements/images/rights, content, privacy and availability. Existing content_approved=true does not approve redesigned copy. Keep APP_ENV production (unset default); no previews or sensitive errors. Set content approval only after separate review. Verify PHP >=8.2, rewrite, optional mod_headers, HTTPS, SSH/SFTP, document-root mapping on actual STRATO Web Power Advance plan. Do not assume package features.
 
-## Deployment on STRATO
+## Deployment on STRATO (operational guidance only; separate authorization required)
 
-1. In the hosting panel verify the package's PHP version, SSL and available SSH/SFTP, and set PHP >= 8.2.
-2. Build production packages (no test tools):
+Build production dependencies only after approval:
 
-   ```powershell
-   docker run --rm -v "${PWD}:/app" composer:2 install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
-   ```
+```powershell
+docker run --rm -v "${PWD}:/app" composer:2 install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
+```
 
-3. Point the domain's **document root** at the project's `public/` directory. This keeps `src/`, `config/`, `data/`, `translations/` and `vendor/` outside the web root.
-4. Upload the project, including `vendor/`, using **SFTP**. Check that `public/.htaccess` is present and URL rewriting works.
-5. Test `/nl`, `/en`, portfolio links and HTTPS, then enable the HTTPS redirect in `public/.htaccess`. If the web root cannot target `public/`, do **not** upload the project into a publicly served directory without restructuring and access restrictions.
-6. Do not deploy unfinished privacy/contact content or placeholder previews as final production content.
+Set domain root to public/; src/, config/, data/, translations/, vendor/, storage/ and shared PHP files must remain outside public access. If hosting cannot map public/, stop and obtain safe restructuring approval. Upload over SFTP including vendor, shared shiva-nav folder and assets, preserve public/.htaccess and rewrite. Verify HTTPS and routes before any separately approved HTTPS configuration change. No unfinished legal/contact content.
 
-### Automatic deployment
+Every push to main runs deployment workflow: tests first; install production dependencies, directory 755/file 644; verify STRATO host-key fingerprint; mirror application directories (including shiva-nav) to documented production target, removing obsolete mirrored files; preserve private storage. Smoke checks include /en, /nl, /en/services, /en/remote-support and /en/contact returning 200 and /config/app.php returning 404. Future /services redirect must be compatible with existing smoke behavior or separately reconciled. Compatibility option A (SC-MD03, approved): `/services` stays a canonical 200 page in both languages for this redesign; the 301 to `/software-development` is deferred to a separately authorized option B that must also amend the `/en/services` smoke check in `.github/workflows/deploy.yml` (outside the 46-path scope). The existing secret name `STRATO_SFTP_PASSWORD` is managed in GitHub Actions (Settings → Secrets and variables → Actions); never disclose its value in source or logs. Manual workflow_dispatch also deploys; never trigger without explicit approval. Rollback by separately approved revert/fix on main triggers redeployment; verify backups and rollback beforehand. Non-main pushes and PRs may trigger CI; no push/PR without permission.
 
-Every push to `main` runs `.github/workflows/deploy.yml`:
+## Limitations
 
-1. The tests run. If any test fails, nothing is uploaded.
-2. Production packages are installed and file permissions are set (folders `755`, files `644`).
-3. The STRATO server key is checked against a fixed fingerprint, so the password is never sent to an unknown server.
-4. `config`, `data`, `translations`, `vendor`, `src` and `public` are mirrored to `shivacomputers-live` over SFTP. Files removed from the repository are removed from the server too.
-5. The live site is checked: `/en`, `/nl`, `/en/services` and `/en/remote-support` must load, and `/config/app.php` must return 404.
-
-The SFTP password is stored as the repository secret `STRATO_SFTP_PASSWORD` (**Settings → Secrets and variables → Actions**). It is never in the code. To deploy again without a new commit, open **Actions → Deploy to STRATO → Run workflow**.
-
-**Rollback:** revert the faulty commit on `main` (or merge a fix). The workflow then uploads the previous version.
-
-Tests also run on every other branch and pull request (`.github/workflows/tests.yml`).
-
-## Notes
-
-Project names and repository links were checked against the public repositories. Descriptions, images, ownership rights and production suitability require review before launch.
-The contact page intentionally has no live form, to avoid an insecure or unconfigured form endpoint.
+Existing project names/repository links were previously documented as checked; descriptions, images, rights and production suitability require review. Current source audit only, no current runtime, CI, mail delivery, accessibility or live deployment verification. Product availability, licensing, project rights, privacy and cross-site shared-navigation authority require review. See HANDOFF for next steps.

@@ -48,9 +48,22 @@ final class SeoTest extends TestCase
             $locations[] = (string) $url->loc;
         }
 
-        self::assertCount(14, $locations);
-        self::assertContains($this->baseUrl() . '/en/portfolio', $locations);
-        self::assertContains($this->baseUrl() . '/nl/remote-support', $locations);
+        // Exact transitional set (compatibility option A): 7 existing + 9 division pages, per language.
+        $suffixes = ['', '/services', '/portfolio', '/about', '/contact', '/privacy', '/remote-support',
+            '/software-development', '/software-development/websites', '/software-development/web-applications',
+            '/software-development/custom-software', '/software-development/automation',
+            '/computer-support', '/computer-support/assist', '/computer-support/recovery', '/computer-support/repair-services'];
+        $expected = [];
+        foreach ($suffixes as $suffix) {
+            foreach (['nl', 'en'] as $language) {
+                $expected[] = $this->baseUrl() . '/' . $language . $suffix;
+            }
+        }
+        sort($expected);
+        sort($locations);
+
+        self::assertCount(32, $locations);
+        self::assertSame($expected, $locations);
     }
 
     public function testHomePageDescribesTheBusinessForSearchEngines(): void
@@ -64,6 +77,29 @@ final class SeoTest extends TestCase
         self::assertSame('Shiva Computers', $data['name']);
         self::assertSame('NL', $data['address']['addressCountry']);
         self::assertStringContainsString('property="og:title"', $body);
+    }
+
+    public function testRobotsMetaAndCanonicalOnEverySitemapPage(): void
+    {
+        $xml = simplexml_load_string($this->get('/sitemap.xml')->body);
+        foreach ($xml->url as $url) {
+            $location = (string) $url->loc;
+            $path = substr($location, strlen($this->baseUrl()));
+            $body = $this->get($path)->body;
+
+            self::assertStringContainsString('rel="canonical" href="' . $location . '"', $body, $path);
+            self::assertStringContainsString('<meta name="robots" content="index,follow">', $body, $path);
+            self::assertSame(3, substr_count($body, 'rel="alternate" hreflang='), $path);
+            self::assertSame(3, count($url->children('http://www.w3.org/1999/xhtml')), $path);
+        }
+    }
+
+    public function testNotFoundIsNotIndexedAndHasNoCanonical(): void
+    {
+        $body = $this->get('/en/computer-support/infrastructure')->body;
+
+        self::assertStringContainsString('noindex', $body);
+        self::assertStringNotContainsString('rel="canonical"', $body);
     }
 
     public function testOtherPagesHaveNoBusinessData(): void
